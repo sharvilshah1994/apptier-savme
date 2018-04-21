@@ -18,4 +18,4 @@ apt-get -y --force-yes install openjdk-8-jdk
 update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 
 # Start server
-java -jar apptier.jar
+sudo nohup java -jar apptier.jar > apptier.txt &

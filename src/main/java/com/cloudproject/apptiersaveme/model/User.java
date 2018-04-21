@@ -1,14 +1,17 @@
 package com.cloudproject.apptiersaveme.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
 @Entity(name = "user")
+@JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -17,9 +20,11 @@ public class User {
     private String lastName;
     private Integer age;
     private String address;
+    @NotNull
     private String userType;
     private String phoneNumber;
     private String emergencyNumber;
+    @NotNull
     private String location;
     @UpdateTimestamp
     private Timestamp lastUpdatedTimeStamp;
