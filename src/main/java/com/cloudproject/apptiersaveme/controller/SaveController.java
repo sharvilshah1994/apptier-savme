@@ -116,6 +116,11 @@ public class SaveController {
         Logs logs = logsRepository.findByRequestId(saveRecord.getId());
         if (Constants.CLIENT_KEYWORD.equals(requester)) {
             logs.setCompleted(true);
+            if (logs.getDoctorId() != null) {
+                User doctor = userRepository.findUserById(logs.getDoctorId());
+                userValidation(doctor);
+                updateDoctorStatus(doctor);
+            }
             saveRepository.deleteById(saveRecord.getId());
         } else {
             if (doctorId == null) {
