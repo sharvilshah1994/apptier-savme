@@ -3,14 +3,13 @@ package com.cloudproject.apptiersaveme.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
+import java.util.Set;
 
-@Entity(name = "user")
+@Entity
+@Table(name = "user")
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class User {
     @Id
@@ -26,8 +25,14 @@ public class User {
     private String emergencyNumber;
     @NotNull
     private String location;
+    @Column(columnDefinition = "BIT(1) default 'true'")
+    private Boolean currentlyAvailable = true;
     @UpdateTimestamp
     private Timestamp lastUpdatedTimeStamp;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private Save save;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<Logs> logs;
 
     public Long getId() {
         return id;
@@ -107,5 +112,29 @@ public class User {
 
     public void setLastUpdatedTimeStamp(Timestamp lastUpdatedTimeStamp) {
         this.lastUpdatedTimeStamp = lastUpdatedTimeStamp;
+    }
+
+    public Save getSave() {
+        return save;
+    }
+
+    public void setSave(Save save) {
+        this.save = save;
+    }
+
+    public Set<Logs> getLogs() {
+        return logs;
+    }
+
+    public void setLogs(Set<Logs> logs) {
+        this.logs = logs;
+    }
+
+    public Boolean getCurrentlyAvailable() {
+        return currentlyAvailable;
+    }
+
+    public void setCurrentlyAvailable(Boolean currentlyAvailable) {
+        this.currentlyAvailable = currentlyAvailable;
     }
 }

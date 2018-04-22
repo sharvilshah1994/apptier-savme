@@ -81,6 +81,9 @@ public class UserController {
         if (user.getLocation() != null) {
             userFromDb.setLocation(user.getLocation());
         }
+        if (user.getCurrentlyAvailable() != null) {
+            userFromDb.setCurrentlyAvailable(user.getCurrentlyAvailable());
+        }
         return userRepository.save(userFromDb);
     }
 }
