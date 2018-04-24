@@ -42,7 +42,7 @@ public class ScheduledService {
             Timestamp time = save.getLastUpdatedTimeStamp();
             Date currDate = new Date();
             Long timeDiff = currDate.getTime() -  time.getTime();
-            if (timeDiff > 1000) {
+            if (timeDiff > 86400000) {
                 Logs logs = logsRepository.findByRequestId(save.getId());
                 logs.setCompleted(true);
                 logsRepository.save(logs);
