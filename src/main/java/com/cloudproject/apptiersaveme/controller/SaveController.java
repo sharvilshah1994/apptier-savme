@@ -228,10 +228,12 @@ public class SaveController {
                 }
             }
         }
+        /*
         String notificationKeyName = userInDanger.getId() + "_" + userInDanger.getFirstName() + "_" +  generateNumber();
         notificationHelperService.sendNotification(Constants.SAVE_ME_DOCTOR,
                 deviceIds.toArray(new String[docList.size()]),
                 notificationKeyName);
+                */
         return docList;
     }
 
