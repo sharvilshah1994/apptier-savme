@@ -1,13 +1,21 @@
 package com.cloudproject.apptiersaveme.service;
 
 import com.cloudproject.apptiersaveme.model.FirebaseResponse;
-import com.google.gson.JsonArray;
+import com.cloudproject.apptiersaveme.util.Constants;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
@@ -24,15 +32,11 @@ public class NotificationHelperService {
         this.androidPushNotificationService = androidPushNotificationService;
     }
 
-    public boolean sendNotification(String message, String[] registrationIds) throws JSONException, ExecutionException, InterruptedException {
+    public boolean sendNotification(String message, String[] registrationIds, String notificationKeyName)
+            throws JSONException, ExecutionException, InterruptedException, IOException {
+        String notificationKey = addNotificationKey(notificationKeyName, registrationIds);
         JSONObject body = new JSONObject();
-        JsonArray jsonArray = new JsonArray();
-        for (String id: registrationIds) {
-            jsonArray.add(id);
-        }
-        body.put("dry_run", true);
-        body.put("registration_ids", jsonArray);
-        body.put("to", "AIzaSyACxDfGHTQ38nl7j-Q7K56gxo3ZmP9_ZKc");
+        body.put("to", notificationKey);
         body.put("priority", "high");
 
         JSONObject notification = new JSONObject();
@@ -40,8 +44,7 @@ public class NotificationHelperService {
         notification.put("title", "Please Help!");
 
         JSONObject data = new JSONObject();
-        data.put("key1", "value1");
-        data.put("key2", "value2");
+        data.put("hello", "This is a Firebase Cloud Messaging Device Group Message!");
 
         body.put("notification", notification);
         body.put("data", data);
@@ -57,5 +60,42 @@ public class NotificationHelperService {
         }
         LOGGER.info("Error sending push notifications: " + firebaseResponse.toString());
         return false;
+    }
+
+    private String addNotificationKey(String notificationKeyName,
+                                      String[] registrationIds)
+            throws IOException, JSONException {
+        URL url = new URL("https://fcm.googleapis.com/fcm/googlenotification");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setDoOutput(true);
+
+        // HTTP request header
+        con.setRequestProperty("project_id", Constants.PROJECT_ID);
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setRequestProperty("Authorization", "key="+Constants.FIREBASE_SERVER_KEY);
+        con.setRequestProperty("Accept", "application/json");
+        con.setRequestMethod("POST");
+        con.connect();
+
+        // HTTP request
+        JSONObject data = new JSONObject();
+        data.put("operation", "create");
+        data.put("notification_key_name", notificationKeyName);
+        data.put("registration_ids", new JSONArray(Arrays.asList(registrationIds)));
+        data.put("id_token", Constants.CLIENT_ID_TOKEN);
+
+        LOGGER.info(data.toString());
+        OutputStream os = con.getOutputStream();
+        os.write(data.toString().getBytes("UTF-8"));
+        os.close();
+
+        // Read the response into a string
+        InputStream is = con.getInputStream();
+        String responseString = new Scanner(is, "UTF-8").useDelimiter("\\A").next();
+        is.close();
+
+        // Parse the JSON string and return the notification key
+        JSONObject response = new JSONObject(responseString);
+        return response.getString("notification_key");
     }
 }

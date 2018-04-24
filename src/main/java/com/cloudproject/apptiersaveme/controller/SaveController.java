@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -50,7 +51,7 @@ public class SaveController {
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<User> saveMeRequest(@RequestParam(value = "userId") Long userId) throws InterruptedException, ExecutionException, JSONException {
+    public List<User> saveMeRequest(@RequestParam(value = "userId") Long userId) throws InterruptedException, ExecutionException, JSONException, IOException {
         if (userId == null) {
             throw new BadRequestException("Valid `userId` is required.");
         }
@@ -206,7 +207,7 @@ public class SaveController {
         logsRepository.save(logs);
     }
 
-    private List<User> getAllDoctorsInUserRadius(User userInDanger) throws InterruptedException, ExecutionException, JSONException {
+    private List<User> getAllDoctorsInUserRadius(User userInDanger) throws InterruptedException, ExecutionException, JSONException, IOException {
         String userLocation = userInDanger.getLocation();
         List<User> docList = new ArrayList<>();
         String[] locations = userLocation.split(" ");
@@ -227,8 +228,15 @@ public class SaveController {
                 }
             }
         }
-        notificationHelperService.sendNotification(Constants.SAVE_ME_DOCTOR, deviceIds.toArray(new String[docList.size()]));
+        String notificationKeyName = userInDanger.getId() + "_" + userInDanger.getFirstName() + "_" +  generateNumber();
+        notificationHelperService.sendNotification(Constants.SAVE_ME_DOCTOR,
+                deviceIds.toArray(new String[docList.size()]),
+                notificationKeyName);
         return docList;
+    }
+
+    private long generateNumber() {
+        return (long)(Math.random()*100000 + 3333300000L);
     }
 
     private static Double distance(Double startLat, Double startLong,
