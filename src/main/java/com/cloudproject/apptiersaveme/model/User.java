@@ -33,6 +33,8 @@ public class User {
     private Save save;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Logs> logs;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private Token token;
 
     public Long getId() {
         return id;
@@ -136,5 +138,13 @@ public class User {
 
     public void setCurrentlyAvailable(Boolean currentlyAvailable) {
         this.currentlyAvailable = currentlyAvailable;
+    }
+
+    public Token getToken() {
+        return token;
+    }
+
+    public void setToken(Token token) {
+        this.token = token;
     }
 }
