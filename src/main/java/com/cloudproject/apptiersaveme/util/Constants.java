@@ -2,6 +2,8 @@ package com.cloudproject.apptiersaveme.util;
 
 public class Constants {
 
+    Constants() {}
+
     public static final String DOCTOR_KEYWORD = "doctor";
 
     public static final String CLIENT_KEYWORD = "client";
