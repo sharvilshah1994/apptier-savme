@@ -15,6 +15,8 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    private String email;
+    private String password;
     private String firstName;
     private String lastName;
     private Integer age;
@@ -33,6 +35,8 @@ public class User {
     private Save save;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Logs> logs;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    private Token token;
 
     public Long getId() {
         return id;
@@ -136,5 +140,29 @@ public class User {
 
     public void setCurrentlyAvailable(Boolean currentlyAvailable) {
         this.currentlyAvailable = currentlyAvailable;
+    }
+
+    public Token getToken() {
+        return token;
+    }
+
+    public void setToken(Token token) {
+        this.token = token;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
