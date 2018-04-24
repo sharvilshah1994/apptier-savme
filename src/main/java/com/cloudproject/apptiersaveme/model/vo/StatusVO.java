@@ -4,6 +4,8 @@ public class StatusVO {
 
     private String status;
 
+    public StatusVO() {}
+
     public StatusVO(String status) {
         this.status = status;
     }
