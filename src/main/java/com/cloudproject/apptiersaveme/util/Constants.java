@@ -12,9 +12,19 @@ public class Constants {
 
     public static final String SAVE_ME_DOCTOR = "Save me doctor!";
 
-    public static final String CLIENT_ID_TOKEN = "AIzaSyACxDfGHTQ38nl7j-Q7K56gxo3ZmP9_ZKc";
+    public static final String CLIENT_NOTIFICATION = "Hang in there. Take help from people around till then.";
 
-    public static final String PROJECT_ID = "728052082003";
+    public static final String CLIENT_ID_TOKEN = "AIzaSyCDYvLRM7OLxbGBHbWriLWB4qBrVhh7PFE";
 
-    public static final String FIREBASE_SERVER_KEY = "AAAAqYNJJVM:APA91bGGTnjCzYOuMGz3hA6TdzhlF46_zteT1A3gb-3_dTtlX-fmaAujYYh0U7HShYsSw5EYYNfHvktPFWA_7iSBDcd4edakfMV44T5mtBoaSobnKp2B0CNgR0IGn94TIZmR6zajgr2m";
+    public static final String PROJECT_ID = "77296001374";
+
+    public static final String FIREBASE_SERVER_KEY = "AAAAEf8zYV4:APA91bErYJaJ8LZT-kXwmfE_VAG2vcsUY2EcmYY_wc_GkerY5FZFlDaqZotxfZWTYBQQG5rld7BH3Fr6RMyYNybYMmQT5TnRMywe6-iBw2rWiVQsWKgNpPX8_Xyur4kum7Bq9kWkTCi9";
+
+    public static final String NOTIFICATION_KEY_URL = "https://fcm.googleapis.com/fcm/notification";
+
+    public static final String SEND_NOTIFICATION_URL = "https://fcm.googleapis.com/fcm/send";
+
+    public static final String DOC_NOTIFICATION_SCREEN_ACTION = "OPEN_DOC_ACTIVITY";
+
+    public static final String CLIENT_NOTIFICATION_SCREEN_ACTION = "OPEN_CLIENT_ACTIVITY";
 }

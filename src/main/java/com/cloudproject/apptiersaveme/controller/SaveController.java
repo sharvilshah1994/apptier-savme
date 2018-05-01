@@ -68,7 +68,9 @@ public class SaveController {
     }
 
     @RequestMapping(value = "/docresponse", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Save responseToSaveMe(@RequestParam(value = "clientId") Long clientId, @RequestParam(value = "doctorId") Long doctorId) {
+    public Save responseToSaveMe(@RequestParam(value = "clientId") Long clientId,
+                                 @RequestParam(value = "doctorId") Long doctorId)
+            throws InterruptedException, ExecutionException, JSONException, IOException {
         if (clientId == null || doctorId == null) {
             throw new BadRequestException("`clientId` & `doctorId` params are required");
         }
@@ -90,7 +92,23 @@ public class SaveController {
         doctor.setCurrentlyAvailable(false);
         userRepository.save(doctor);
         logsRepository.save(logRecord);
+        notifyUser(userInDanger, Constants.CLIENT_NOTIFICATION, "Doctor is on the way!",
+                "response", doctor.getId());
         return saveRepository.save(saveRecord);
+    }
+
+    private void notifyUser(User user, String notificationBody, String notificationTitle,
+                            String notificationIdentifier, Long id)
+            throws InterruptedException, ExecutionException, JSONException, IOException {
+        if (user.getToken().getDeviceToken() == null) {
+            return;
+        }
+        String[] tokenIds = new String[]{user.getToken().getDeviceToken()};
+        String notificationKeyName = user.getId() + "_" + user.getFirstName() + "_" +  generateNumber();
+        notificationHelperService.sendNotification(notificationBody,
+                notificationTitle,
+                tokenIds,
+                notificationKeyName, notificationIdentifier, id);
     }
 
     private void validateDocDistance(User userInDanger, User doctor) {
@@ -115,7 +133,8 @@ public class SaveController {
     @RequestMapping(value = "/cancel", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public StatusVO cancelSaveMeRequest(@RequestParam(value = "clientId") Long clientId,
                                         @RequestParam(value = "doctorId", required = false) Long doctorId,
-                                        @RequestParam(value = "requester") String requester) {
+                                        @RequestParam(value = "requester") String requester)
+            throws InterruptedException, ExecutionException, JSONException, IOException {
         if (clientId == null) {
             throw new BadRequestException("`clientId` is required for this endpoint");
         }
@@ -133,6 +152,8 @@ public class SaveController {
                 User doctor = userRepository.findUserById(logs.getDoctorId());
                 userValidation(doctor);
                 updateDoctorStatus(doctor);
+                notifyUser(doctor, "Patient has cancelled the request", "Request Cancelled",
+                        "", userInDanger.getId());
             }
             saveRepository.deleteById(saveRecord.getId());
         } else {
@@ -145,6 +166,9 @@ public class SaveController {
             logs.setDoctorId(null);
             saveRepository.save(saveRecord);
             updateDoctorStatus(doctor);
+            notifyUser(userInDanger, "Doctor seems to be busy, other doctors notified", "Doctor cancelled request",
+                    "", doctor.getId());
+            getAllDoctorsInUserRadius(userInDanger);
         }
         logsRepository.save(logs);
         return new StatusVO("Request cancelled");
@@ -228,10 +252,13 @@ public class SaveController {
                 }
             }
         }
-        String notificationKeyName = userInDanger.getId() + "_" + userInDanger.getFirstName() + "_" +  generateNumber();
-        notificationHelperService.sendNotification(Constants.SAVE_ME_DOCTOR,
-                deviceIds.toArray(new String[docList.size()]),
-                notificationKeyName);
+        if (!docList.isEmpty()) {
+            String notificationKeyName = userInDanger.getId() + "_" + userInDanger.getFirstName() + "_" + generateNumber();
+            notificationHelperService.sendNotification(Constants.SAVE_ME_DOCTOR,
+                    "Please Help Doctor!",
+                    deviceIds.toArray(new String[docList.size()]),
+                    notificationKeyName, "saveme", userInDanger.getId());
+        }
         return docList;
     }
 

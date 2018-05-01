@@ -1,10 +1,9 @@
 package com.cloudproject.apptiersaveme.controller;
 
+import com.cloudproject.apptiersaveme.exception.BadRequestException;
 import com.cloudproject.apptiersaveme.exception.ResourceNotFoundException;
 import com.cloudproject.apptiersaveme.model.User;
-import com.cloudproject.apptiersaveme.model.vo.StatusVO;
 import com.cloudproject.apptiersaveme.repository.UserRepository;
-import com.cloudproject.apptiersaveme.exception.BadRequestException;
 import com.cloudproject.apptiersaveme.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -25,8 +24,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public StatusVO userLogin(@RequestBody User user) {
-        StatusVO statusVO = new StatusVO();
+    public User userLogin(@RequestBody User user) {
         String email = user.getEmail();
         String pass = user.getPassword();
         if (email == null || pass == null) {
@@ -34,11 +32,9 @@ public class UserController {
         }
         User userFromDb = userRepository.findByEmailAndPassword(email, pass);
         if (userFromDb == null) {
-            statusVO.setStatus("Login Failed");
-        } else {
-            statusVO.setStatus("Login Success");
+            throw new BadRequestException("Login Failed");
         }
-        return statusVO;
+        return userFromDb;
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
