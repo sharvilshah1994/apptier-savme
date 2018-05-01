@@ -25,7 +25,8 @@ public class AndroidPushNotificationService {
         interceptors.add(new HeaderRequestInterceptor("Content-Type", "application/json"));
         restTemplate.setInterceptors(interceptors);
 
-        FirebaseResponse firebaseResponse = restTemplate.postForObject("https://fcm.googleapis.com/fcm/send", entity, FirebaseResponse.class);
+        FirebaseResponse firebaseResponse = restTemplate.postForObject(Constants.SEND_NOTIFICATION_URL, entity,
+                FirebaseResponse.class);
 
         return CompletableFuture.completedFuture(firebaseResponse);
     }

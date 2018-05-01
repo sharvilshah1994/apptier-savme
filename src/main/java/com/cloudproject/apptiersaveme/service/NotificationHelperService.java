@@ -32,19 +32,26 @@ public class NotificationHelperService {
         this.androidPushNotificationService = androidPushNotificationService;
     }
 
-    public boolean sendNotification(String message, String[] registrationIds, String notificationKeyName)
+    public boolean sendNotification(String message, String title, String[] registrationIds, String notificationKeyName,
+                                    String notificationIdentifier, Long userId)
             throws JSONException, ExecutionException, InterruptedException, IOException {
         String notificationKey = addNotificationKey(notificationKeyName, registrationIds);
+        LOGGER.info("Notification key is: " + notificationKey);
         JSONObject body = new JSONObject();
         body.put("to", notificationKey);
         body.put("priority", "high");
+        if (notificationIdentifier.equals("saveme")) {
+            body.put("click_action", Constants.DOC_NOTIFICATION_SCREEN_ACTION);
+        } else if (notificationIdentifier.equals("response")){
+            body.put("click_action", Constants.CLIENT_NOTIFICATION_SCREEN_ACTION);
+        }
 
         JSONObject notification = new JSONObject();
         notification.put("body", message);
-        notification.put("title", "Please Help!");
+        notification.put("title", title);
 
         JSONObject data = new JSONObject();
-        data.put("hello", "This is a Firebase Cloud Messaging Device Group Message!");
+        data.put("id", userId);
 
         body.put("notification", notification);
         body.put("data", data);
@@ -55,7 +62,7 @@ public class NotificationHelperService {
         CompletableFuture.allOf(pushNotification).join();
 
         FirebaseResponse firebaseResponse = pushNotification.get();
-        if (firebaseResponse.getSuccess() == 1) {
+        if (firebaseResponse.getSuccess() > 0) {
             return true;
         }
         LOGGER.info("Error sending push notifications: " + firebaseResponse.toString());
@@ -65,7 +72,7 @@ public class NotificationHelperService {
     private String addNotificationKey(String notificationKeyName,
                                       String[] registrationIds)
             throws IOException, JSONException {
-        URL url = new URL("https://fcm.googleapis.com/fcm/googlenotification");
+        URL url = new URL(Constants.NOTIFICATION_KEY_URL);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setDoOutput(true);
 
