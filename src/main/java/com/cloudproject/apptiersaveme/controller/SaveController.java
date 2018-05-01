@@ -63,8 +63,11 @@ public class SaveController {
         if (saveRecord != null) {
             throw new BadRequestException("You need to complete or cancel previous request");
         }
-        createRecordSaveTable(userInDanger);
-        return getAllDoctorsInUserRadius(userInDanger);
+        List<User> docs = getAllDoctorsInUserRadius(userInDanger);
+        if (!docs.isEmpty()){
+            createRecordSaveTable(userInDanger);
+        }
+        return docs;
     }
 
     @RequestMapping(value = "/docresponse", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
